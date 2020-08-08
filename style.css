@@ -1,0 +1,14 @@
+#view-highscore {}
+
+#timer {
+    text-align: right;
+}
+
+.card {
+    margin: auto;
+    width: 50%;
+}
+
+.hide {
+    display: none;
+}
