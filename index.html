@@ -25,17 +25,17 @@
     </header>
     <div class="intro">
         <div class="card">
-            <div class="card-body">
+            <div class="card-body" id="quiz-intro">
                 <h5 class="card-title">Coding Quiz Challenge</h5>
                 <p class="card-text">Try to answer the following code-related questions within the time limit. Keep in mind that incorrect answers will penalize your score/time by ten seconds!</p>
                 <button type="submit" class="btn btn-primary mb-2" id="start-quiz-button">Start Quiz</button>
             </div>
         </div>
     </div>
-    <div class="quiz-body hide">
+    <div class="quiz">
         <div class="card">
-            <div class="card-body">
-                <h5 class="card-title" id="question">Question</h5>
+            <div class="card-body hide" id="quiz-body">
+                <h5 class="card-title" id="quiz-question">Question</h5>
                 <select multiple class="form-control" id="quiz-options">
                     <option id="quiz-option-1">1</option>
                     <option id="quiz-option-2">2</option>
@@ -44,14 +44,15 @@
                   </select>
                 <br/>
                 <div>
-                    <h5 class="card-title" id="answer-result">Result</p>
+                    <h5 class="card-title hide" id="answer-result">
+                        </p>
                 </div>
             </div>
         </div>
     </div>
-    <div class="submit hide">
+    <div class="submit">
         <div class="card">
-            <div class="card-body">
+            <div class="card-body hide" id="quiz-submit">
                 <h5 class="card-title">All done!</h5>
                 <p class="card-text">Your final score is: <span class="final-score" id="final-score">0</span></p>
                 <form class="form-inline">
@@ -66,9 +67,9 @@
             </div>
         </div>
     </div>
-    <div class="highscores hide">
+    <div class="highscores">
         <div class="card">
-            <div class="card-body">
+            <div class="card-body hide" id="quiz-highscores">
                 <h5 class="card-title">Highscores</h5>
                 <ul class="list-group list-group-flush" id="highscores-list">
                     <li class="list-group-item"></li>
