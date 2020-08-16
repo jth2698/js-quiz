@@ -265,7 +265,9 @@ function renderHighScores() {
 
 viewHighscoresButton.addEventListener("click", function() {
     hideElement(quizIntro);
-    renderHighScores();
+    hideElement(quizBody);
+    hideElement(quizSubmit);
+    storeSubmission();
 });
 
 goBackButton.addEventListener("click", function() {
