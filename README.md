@@ -6,8 +6,8 @@ This is a timed JavaScript quiz. The quiz consists of a simple html page styled 
 
 ## The HTML and CSS
 The index.html file consists of the following:
-1. Standard <head>.
-2. <body> <divs> as follows -
+1. Standard head.
+2. body divs as follows -
     1. A header with a View Highscores button and a timer.
     2. A body card with intro text and a start quiz button.
     3. Another body card with a question container.
