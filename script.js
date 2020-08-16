@@ -1,5 +1,6 @@
 // Create variables to select applicable #ids in index.html
 
+var viewHighscoresButton = document.querySelector("#view-highscores");
 var timeLeft = document.querySelector("#time-left");
 var quizIntro = document.querySelector("#quiz-intro");
 var startQuizButton = document.querySelector("#start-quiz-button");
@@ -20,7 +21,7 @@ var highscoresList = document.querySelector("#highscores-list");
 var goBackButton = document.querySelector("#go-back-button");
 var clearHighscoresButton = document.querySelector("#clear-highscores-button");
 
-// Create objects to store quiz questions and possible answers amd store all question values in array
+// Create object within quizContent array to store quiz questions, answer options, and the correct answer  
 
 var quizContent = [{
         question: "Commonly used data types DO NOT include:",
@@ -74,11 +75,11 @@ var quizContent = [{
     }
 ];
 
+// Set needed global variables: secondsLeft for the timer countdown and userScore to be used to display finalScore at the end of quiz
+
 var secondsLeft = 10;
 
 var userScore = 0;
-
-var playerData = [];
 
 // Create hide element function to hide content by adding .hide class as buttons are clicked
 
@@ -107,12 +108,11 @@ function startTimer() {
         timeLeft.textContent = secondsLeft;
         if (secondsLeft === 0) {
             clearInterval(timerInterval);
-            renderSubmission();
         }
     }, 1000);
 }
 
-// Initialize quiz with question and options for first question
+// Initialize quiz by hiding the intro content and showing the quizBody with the first question and answer options populated
 
 startQuizButton.addEventListener("click", startQuiz);
 
@@ -124,32 +124,36 @@ function startQuiz() {
     renderQuestion();
 }
 
+// Create global quizContentIndex to help loop through the quizContent array, and create renderQuestion function to populate each set of questions and answers
+
 var quizContentIndex = 0;
 
 function renderQuestion() {
     i = quizContentIndex;
-    if (i < quizContent.length) {
+    if (i < quizContent.length && secondsLeft >= 1) {
         quizQuestion.textContent = quizContent[i].question;
         quizOption1.textContent = quizContent[i].options[0].text;
         quizOption2.textContent = quizContent[i].options[1].text;
         quizOption3.textContent = quizContent[i].options[2].text;
         quizOption4.textContent = quizContent[i].options[3].text;
+        // renderQuestion should skip to the submission page if there are no quizContent loops remaining
     } else {
         renderSubmission();
     }
 }
 
+// Create checkSolution function to check each answer option selected against correct answer
+
 function checkSelection() {
     var selection = quizOptions.value;
     if (i < quizContent.length) {
         if (selection === quizContent[i].answer) {
-            console.log("correct");
             showElement(answerResult);
             answerResult.textContent = "Correct!";
             userScore = userScore + 10;
+            // this setTimeOut function keeps the answerResult box from flashing too fast; allows user to see the result
             setTimeout(nextQuestion, 500);
         } else if (selection !== "" && selection !== quizContent[i].answer) {
-            console.log("nope");
             showElement(answerResult);
             answerResult.textContent = "Wrong!";
             userScore = userScore - 10;
@@ -158,13 +162,40 @@ function checkSelection() {
     }
 }
 
+// Add checkSelection function to each click within the quizOptions form (html form that holds all options)
+
 quizOptions.addEventListener("click", checkSelection);
+
+// Create nextQuestion function to tie in with checkSelection function; this iterates to the next quizContent item after a seelction made
 
 function nextQuestion() {
     quizContentIndex++;
+    // note that the answerResult box needs to be hidden again as questions and answers are iterated
     hideElement(answerResult);
     renderQuestion();
 }
+
+// For simplicity, create two arrays; one to hold each player's intials and one to hold the corresponding player scores
+
+var playerInitials = [];
+var playerScores = [];
+
+// Insert and call function to populate playerInitials and playerScores with existing localData before adding data
+
+function getPlayerData() {
+    var storedPlayerInitials = JSON.parse(localStorage.getItem("player-initials"));
+    if (storedPlayerInitials !== null) {
+        playerInitials = storedPlayerInitials;
+    }
+    var storedPlayerScores = JSON.parse(localStorage.getItem("player-scores"));
+    if (storedPlayerScores !== null) {
+        playerScores = storedPlayerScores;
+    }
+}
+
+getPlayerData();
+
+// Now create a function to render the submission card. Data from this card will be pushed into the playerData arrays (end of the playerData arrays if populated with stored data). 
 
 function renderSubmission() {
 
@@ -172,25 +203,43 @@ function renderSubmission() {
     hideElement(quizBody);
     showElement(quizSubmit);
 
-    var playerScore = userScore + secondsLeft;
-    finalScore.textContent = playerScore;
+    // To give the player a bonus for completing the quiz quickly, we add 10 points per correct answer (less negative 10 points for wrong answers) and add the total to secondsLeft
+    var thisScore = userScore;
+    finalScore.textContent = thisScore;
 
+    // Also need to add the current player's initials to playerInitials array
     submitInitials.addEventListener("click", function(event) {
 
         event.preventDefault();
 
         var initials = initialInput.value;
-        var playerText = initials + "-" + playerScore;
 
-        if (playerText === "") {
+        // alert and return out of this function if player does not submit initials
+        if (initials === "") {
+            alert("You must submit your initials. Use an alias if needed!")
             return;
         }
 
-        playerData.push(playerText);
-        submitInitials.value = "";
+        // once player submits initials, also push those into the playerInitials array
+        console.log(playerInitials);
+        playerInitials.push(initials);
+        console.log(playerInitials);
+        // also push thisScore so that arrays are populated at same time
+        console.log(playerScores);
+        playerScores.push(thisScore);
+        console.log(playerScores);
 
-        renderHighScores();
+        // Call function to retrieve this + all other player data before rendering to the high scores page
+        storeSubmission();
     });
+}
+
+function storeSubmission() {
+    // stringify playerScore and playInitials and set into localStorage
+    localStorage.setItem("player-initials", JSON.stringify(playerInitials));
+    localStorage.setItem("player-scores", JSON.stringify(playerScores));
+    // after current data is stored, can call renderHighScores
+    renderHighScores();
 }
 
 function renderHighScores() {
@@ -198,13 +247,32 @@ function renderHighScores() {
     hideElement(quizSubmit);
     showElement(quizHighscores);
 
-    for (var i = 0; i < playerData.length; i++) {
-        var playerEntry = playerData[i];
-        var playerLi = document.createElement("li");
-        playerLi.textContent = playerEntry;
-        playerLi.setAttribute("class", "list-group-item");
-        highscoresList.appendChild(playerLi);
+    // using the playerInitials array, loop through the playerData object to display the results
+    for (var i = 0; i < playerInitials.length; i++) {
+        var renderInitials = playerInitials[i];
+        var renderScore = playerScores[i];
+        // create a list element for each render and store rendered content in the list element
+        var renderLi = document.createElement("li");
+        renderLi.textContent = renderInitials + " - " + renderScore;
+        // ensure new list element is set to appropriate bootstrap class
+        renderLi.setAttribute("class", "list-group-item");
+        // append each list element to its parent ul element (already named at beginning of script.js)
+        highscoresList.appendChild(renderLi);
     }
-
-    console.log(playerData);
 }
+
+// Add functionality for viewHighscore, goBack, and clearHighscores elements / buttons
+
+viewHighscoresButton.addEventListener("click", function() {
+    hideElement(quizIntro);
+    getPlayerData();
+});
+
+goBackButton.addEventListener("click", function() {
+    location.reload();
+});
+
+clearHighscoresButton.addEventListener("click", function() {
+    highscoresList.innerHTML = "";
+    localStorage.clear();
+})
