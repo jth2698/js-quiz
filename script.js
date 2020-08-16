@@ -77,7 +77,7 @@ var quizContent = [{
 
 // Set needed global variables: secondsLeft for the timer countdown and userScore to be used to display finalScore at the end of quiz
 
-var secondsLeft = 10;
+var secondsLeft = 30;
 
 var userScore = 0;
 
@@ -157,6 +157,12 @@ function checkSelection() {
             showElement(answerResult);
             answerResult.textContent = "Wrong!";
             userScore = userScore - 10;
+            if (secondsLeft >= 11) {
+                secondsLeft = secondsLeft - 10;
+            } else {
+                secondsLeft = 1;
+                renderSubmission();
+            }
             setTimeout(nextQuestion, 500);
         }
     }
@@ -221,13 +227,9 @@ function renderSubmission() {
         }
 
         // once player submits initials, also push those into the playerInitials array
-        console.log(playerInitials);
         playerInitials.push(initials);
-        console.log(playerInitials);
         // also push thisScore so that arrays are populated at same time
-        console.log(playerScores);
         playerScores.push(thisScore);
-        console.log(playerScores);
 
         // Call function to retrieve this + all other player data before rendering to the high scores page
         storeSubmission();
